@@ -1,0 +1,44 @@
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fd00::/48'
+
+# Core LAN Bridge Interface 
+config interface 'lan'
+	option proto 'static'
+	option ipaddr '172.20.16.227'
+	option netmask '255.255.255.0'
+	option device 'br-lan'
+
+# Dynamic USB WAN Interface for your Phone Tethering
+config interface 'wan'
+	option proto 'dhcp'
+	option device 'usb0'
+
+# Hardware Switch Activation
+config switch
+	option name 'switch0'
+	option reset '1'
+	option enable_vlan '1'
+
+# VLAN 1: Normal LAN Zone (Covers Physical LAN 3 & Physical LAN 4)
+config switch_vlan
+	option device 'switch0'
+	option vlan '1'
+	option ports '0 1 5t'
+
+# VLAN 10: Dedicated HSR Slave 1 Path (Maps to Physical LAN Port 1)
+config switch_vlan
+	option device 'switch0'
+	option vlan '10'
+	option ports '3 5t'
+
+# VLAN 20: Dedicated HSR Slave 2 Path (Maps to Physical LAN Port 2)
+config switch_vlan
+	option device 'switch0'
+	option vlan '20'
+	option ports '2 5t'
