@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# 1. CONFIGURE PHYSICAL PORTS FOR HSR
+# Bring down the physical target slave interfaces on the WNDR3700v4
+ip link set eth0 down
+ip link set eth1 down
+
+# Create the HSR interface (hsr0) using HSR version 0
+ip link add name hsr0 type hsr slave1 eth0 slave2 eth1 interlink none version 0
+
+# Bring the HSR infrastructure up in promiscuous mode (required for bridging)
+ip link set eth0 up
+ip link set eth1 up
+ip link set hsr0 up
+
+# 2. BRIDGE HSR TO THE LOCAL AREA NETWORK (LAN)
+# Dynamically add the hsr0 interface to OpenWrt's default bridge (br-lan)
+uci add_list network.device.ports='hsr0'
+uci commit network
+
+# 3. START BACKGROUND IPHONE SERVICES
+if [ -f /usr/sbin/usbmuxd ]; then
+    /usr/sbin/usbmuxd -v --user root &
+fi
+
+# 4. CREATE A PERSISTENT HOTPLUG SCRIPT FOR DYNAMIC USB TETHERING
+cat << 'EOF' > /etc/hotplug.d/iface/99-usb-tether
+#!/bin/sh
+INTERFACE="usb0"
+if [ "$INTERFACE" = "usb0" ]; then
+    if [ "$ACTION" = "ifup" ]; then
+        uci set network.wan.device='usb0'
+        uci set network.wan.proto='dhcp'
+        uci commit network
+        /etc/init.d/network restart
+    fi
+fi
+EOF
+
+chmod +x /etc/hotplug.d/iface/99-usb-tether
+
+# 5. FORCE NETWORK RESTART TO APPLY CHANGES Safely
+/etc/init.d/network restart
+
+exit 0
