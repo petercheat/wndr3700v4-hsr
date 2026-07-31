@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # 1. CONFIGURE ISOLATED VLAN PORTS INTO THE HSR RING
-# Take down virtual VLAN interfaces
 ip link set eth0.10 down
 ip link set eth0.20 down
 
@@ -14,7 +13,7 @@ ip link set eth0.20 up
 ip link set hsr0 up
 
 # 2. BRIDGE THE HSR RING BACK TO LAN
-# This attaches your 172.20.16.227 static IP network directly to the HSR interface
+# This attaches your default 192.168.1.1 network directly to the HSR interface
 uci add_list network.device.ports='hsr0'
 uci commit network
 
