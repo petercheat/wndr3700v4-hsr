@@ -1,20 +1,20 @@
 #!/bin/sh
 
-# 1. CONFIGURE PHYSICAL PORTS FOR HSR
-# Bring down the physical target slave interfaces on the WNDR3700v4
-ip link set eth0 down
-ip link set eth1 down
+# 1. CONFIGURE ISOLATED VLAN PORTS INTO THE HSR RING
+# Take down virtual VLAN interfaces
+ip link set eth0.10 down
+ip link set eth0.20 down
 
-# Create the HSR interface (hsr0) using HSR version 0
-ip link add name hsr0 type hsr slave1 eth0 slave2 eth1 interlink none version 0
+# Create the HSR interface (hsr0) using the hardware-isolated ports
+ip link add name hsr0 type hsr slave1 eth0.10 slave2 eth0.20 interlink none version 0
 
-# Bring the HSR infrastructure up in promiscuous mode (required for bridging)
-ip link set eth0 up
-ip link set eth1 up
+# Bring the HSR infrastructure up in promiscuous mode for clean bridging
+ip link set eth0.10 up
+ip link set eth0.20 up
 ip link set hsr0 up
 
-# 2. BRIDGE HSR TO THE LOCAL AREA NETWORK (LAN)
-# Dynamically add the hsr0 interface to OpenWrt's default bridge (br-lan)
+# 2. BRIDGE THE HSR RING BACK TO LAN
+# This attaches your 172.20.16.227 static IP network directly to the HSR interface
 uci add_list network.device.ports='hsr0'
 uci commit network
 
@@ -39,7 +39,7 @@ EOF
 
 chmod +x /etc/hotplug.d/iface/99-usb-tether
 
-# 5. FORCE NETWORK RESTART TO APPLY CHANGES Safely
+# 5. FORCE ALL NETWORK LAYERS TO ALIGN
 /etc/init.d/network restart
 
 exit 0
