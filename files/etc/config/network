@@ -7,10 +7,10 @@ config interface 'loopback'
 config globals 'globals'
 	option ula_prefix 'fd00::/48'
 
-# Core LAN Bridge Interface 
+# Core LAN Bridge Interface
 config interface 'lan'
 	option proto 'static'
-	option ipaddr '172.20.16.227'
+	option ipaddr '192.168.1.1'
 	option netmask '255.255.255.0'
 	option device 'br-lan'
 
