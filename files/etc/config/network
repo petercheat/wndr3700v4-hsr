@@ -42,3 +42,7 @@ config switch_vlan
 	option device 'switch0'
 	option vlan '20'
 	option ports '2 5t'
+
+# Wireless Client Interface (WWAN)
+config interface 'wwan'
+	option proto 'dhcp'
