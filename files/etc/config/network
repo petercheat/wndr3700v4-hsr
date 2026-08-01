@@ -18,6 +18,7 @@ config interface 'lan'
 config interface 'wan'
 	option proto 'dhcp'
 	option device 'usb0'
+	option metric '10'
 
 # Hardware Switch Activation
 config switch
@@ -46,3 +47,4 @@ config switch_vlan
 # Wireless Client Interface (WWAN)
 config interface 'wwan'
 	option proto 'dhcp'
+	option metric '10'
