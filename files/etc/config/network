@@ -7,44 +7,55 @@ config interface 'loopback'
 config globals 'globals'
 	option ula_prefix 'fd00::/48'
 
-# Core LAN Bridge Interface
+# Main Local Network Bridge (Binds blue WAN port as a standard LAN port)
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'eth1'
+
 config interface 'lan'
 	option proto 'static'
 	option ipaddr '192.168.1.1'
 	option netmask '255.255.255.0'
 	option device 'br-lan'
 
-# Dynamic USB WAN Interface for your Phone Tethering
+# Multi-WAN target paths
 config interface 'wan'
 	option proto 'dhcp'
 	option device 'usb0'
 	option metric '10'
 
-# Hardware Switch Activation
+config interface 'wwan'
+	option proto 'dhcp'
+	option device 'wwan'
+	option metric '10'
+
+# Hardware Switch Configuration
 config switch
 	option name 'switch0'
 	option reset '1'
 	option enable_vlan '1'
 
-# VLAN 1: Normal LAN Zone (Covers Physical LAN 3 & Physical LAN 4)
-config switch_vlan
-	option device 'switch0'
-	option vlan '1'
-	option ports '0 1 5t'
-
-# VLAN 10: Dedicated HSR Slave 1 Path (Maps to Physical LAN Port 1)
+# VLAN 10: HSR Slave 1 (Physical LAN 1 -> Switch Port 3)
 config switch_vlan
 	option device 'switch0'
 	option vlan '10'
 	option ports '3 5t'
 
-# VLAN 20: Dedicated HSR Slave 2 Path (Maps to Physical LAN Port 2)
+# VLAN 20: HSR Slave 2 (Physical LAN 2 -> Switch Port 2)
 config switch_vlan
 	option device 'switch0'
 	option vlan '20'
 	option ports '2 5t'
 
-# Wireless Client Interface (WWAN)
-config interface 'wwan'
-	option proto 'dhcp'
-	option metric '10'
+# VLAN 30: PRP Slave A (Physical LAN 3 -> Switch Port 1)
+config switch_vlan
+	option device 'switch0'
+	option vlan '30'
+	option ports '1 5t'
+
+# VLAN 40: PRP Slave B (Physical LAN 4 -> Switch Port 0)
+config switch_vlan
+	option device 'switch0'
+	option vlan '40'
+	option ports '0 5t'
