@@ -1,28 +1,32 @@
 #!/bin/sh
 
-# 1. CONFIGURE ISOLATED VLAN PORTS INTO THE HSR RING
+# 1. INITIALISE THE HSR RING (PORTS 1 & 2)
 ip link set eth0.10 down
 ip link set eth0.20 down
-
-# Create the HSR interface (hsr0) using the hardware-isolated ports
 ip link add name hsr0 type hsr slave1 eth0.10 slave2 eth0.20 interlink none version 0
-
-# Bring the HSR infrastructure up in promiscuous mode for clean bridging
 ip link set eth0.10 up
 ip link set eth0.20 up
 ip link set hsr0 up
 
-# 2. BRIDGE THE HSR RING BACK TO LAN
-# This attaches your default 192.168.1.1 network directly to the HSR interface
+# 2. INITIALISE THE PRP INTERFACE (PORTS 3 & 4)
+ip link set eth0.30 down
+ip link set eth0.40 down
+ip link add name prp0 type prp slave1 eth0.30 slave2 eth0.40 interlink none
+ip link set eth0.30 up
+ip link set eth0.40 up
+ip link set prp0 up
+
+# 3. BRIDGE BOTH HIGH-AVAILABILITY INTERFACES TO THE LAN SUBSTATION
 uci add_list network.device.ports='hsr0'
+uci add_list network.device.ports='prp0'
 uci commit network
 
-# 3. START BACKGROUND IPHONE SERVICES
+# 4. START BACKGROUND IPHONE SERVICES
 if [ -f /usr/sbin/usbmuxd ]; then
     /usr/sbin/usbmuxd -v --user root &
 fi
 
-# 4. CREATE A PERSISTENT HOTPLUG SCRIPT FOR DYNAMIC USB TETHERING
+# 5. HOTPLUG RULE FOR DYNAMIC USB PHONE TETHERING
 cat << 'EOF' > /etc/hotplug.d/iface/99-usb-tether
 #!/bin/sh
 INTERFACE="usb0"
@@ -38,7 +42,8 @@ EOF
 
 chmod +x /etc/hotplug.d/iface/99-usb-tether
 
-# 5. FORCE ALL NETWORK LAYERS TO ALIGN
+# 6. RELOAD WIRELESS CHIPS AND RESTART NETWORK STACK
+wifi reload
 /etc/init.d/network restart
 
 exit 0
