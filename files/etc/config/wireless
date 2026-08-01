@@ -1,0 +1,32 @@
+config wifi-device 'radio0'
+	option type 'mac80211'
+	option path 'platform/soc/18100000.wmac'
+	option channel 'auto'
+	option band '2g'
+	option htmode 'HT20'
+	option disabled '0'
+
+# Upstream Client interface to grab internet from the open STARLINK network
+config wifi-iface 'wwan_client'
+	option device 'radio0'
+	option network 'wwan'
+	option mode 'sta'
+	option ssid 'STARLINK'
+	option encryption 'none'
+
+config wifi-device 'radio1'
+	option type 'mac80211'
+	option path 'platform/soc/1a000000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0'
+	option channel '36'
+	option band '5g'
+	option htmode 'VHT80'
+	option disabled '0'
+
+# Local high-speed 5GHz private Wi-Fi network for your local devices
+config wifi-iface 'default_radio1'
+	option device 'radio1'
+	option network 'lan'
+	option mode 'ap'
+	option ssid 'Commissioning Access'
+	option encryption 'psk2'
+	option key 'password12'
