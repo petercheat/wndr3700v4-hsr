@@ -6,7 +6,7 @@ config wifi-device 'radio0'
 	option htmode 'HT20'
 	option disabled '0'
 
-# Upstream Client interface to grab internet from the open STARLINK network
+# Upstream wireless WAN client connection
 config wifi-iface 'wwan_client'
 	option device 'radio0'
 	option network 'wwan'
@@ -22,7 +22,7 @@ config wifi-device 'radio1'
 	option htmode 'VHT80'
 	option disabled '0'
 
-# Local high-speed 5GHz private Wi-Fi network for your local devices
+# Private local high-speed Wi-Fi access point
 config wifi-iface 'default_radio1'
 	option device 'radio1'
 	option network 'lan'
